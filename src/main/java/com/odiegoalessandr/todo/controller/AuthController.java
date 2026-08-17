@@ -34,7 +34,6 @@ public class AuthController {
     @ApiResponse(responseCode = "500", description = "Usuário não encontrado", content = @Content)
   })
   public String login(
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Credenciais de login", required = true)
     @RequestBody @Valid LoginRequest loginRequest
   ){
     return this.authService.login(loginRequest);
@@ -48,7 +47,6 @@ public class AuthController {
     @ApiResponse(responseCode = "500", description = "Username ou e-mail já cadastrado", content = @Content)
   })
   public String register(
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Dados do novo usuário", required = true)
     @RequestBody @Valid RegisterRequest registerRequest
   ){
     return this.authService.register(registerRequest);

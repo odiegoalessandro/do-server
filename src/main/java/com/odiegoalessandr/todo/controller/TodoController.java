@@ -42,7 +42,6 @@ public class TodoController {
     @ApiResponse(responseCode = "401", description = "JWT ausente ou inválido", content = @Content)
   })
   public RequestTodo create(
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Dados do novo todo", required = true)
     @RequestBody @Valid CreateTodoDto createTodoDto,
     @Parameter(hidden = true) @AuthenticationPrincipal User user
   ){
@@ -81,7 +80,7 @@ public class TodoController {
     return todoService.findById(id, user);
   }
 
-  @PutMapping("/{id}")
+  @PatchMapping("/{id}")
   @Operation(summary = "Atualizar todo", description = "Atualiza um todo existente do usuário autenticado.")
   @ApiResponses({
     @ApiResponse(responseCode = "200", description = "Todo atualizado com sucesso", content = @Content(schema = @Schema(implementation = RequestTodo.class))),
@@ -91,7 +90,6 @@ public class TodoController {
   })
   public RequestTodo update(
     @Parameter(description = "ID do todo", example = "7f3a2d5c-0f5f-4b72-8b98-3fd6f6d7d5e1") @PathVariable UUID id,
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Dados de atualização do todo", required = true)
     @RequestBody @Valid UpdateTodoDto updateTodoDto,
     @Parameter(hidden = true) @AuthenticationPrincipal User user
   ) {

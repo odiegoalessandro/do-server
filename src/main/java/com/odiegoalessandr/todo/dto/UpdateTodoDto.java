@@ -8,11 +8,10 @@ import jakarta.validation.constraints.NotBlank;
 import java.util.Optional;
 import java.util.UUID;
 
-@Schema(description = "Dados para criar um novo todo")
-public record CreateTodoDto(
-  @Schema(description = "Título do todo", example = "Estudar Spring Doc", requiredMode = Schema.RequiredMode.REQUIRED)
-  @NotBlank
-  String title,
+@Schema(description = "Dados para atualizar um todo existente")
+public record UpdateTodoDto(
+  @Schema(description = "Título do todo", example = "Estudar Spring Doc")
+  Optional<String> title,
 
   @Schema(description = "Descrição detalhada do todo", example = "Documentar todos os endpoints da API")
   Optional<String> description,
@@ -20,10 +19,10 @@ public record CreateTodoDto(
   @Schema(description = "ID do todo pai, quando este todo for uma subtarefa", example = "7f3a2d5c-0f5f-4b72-8b98-3fd6f6d7d5e1")
   Optional<UUID> parentId,
 
-  @Schema(description = "Status inicial do todo. Quando omitido, será TODO.", example = "TODO")
+  @Schema(description = "Status do todo", example = "DOING")
   Optional<TodoStatus> status,
 
-  @Schema(description = "Prioridade inicial do todo. Quando omitida, será LOW.", example = "LOW")
+  @Schema(description = "Prioridade do todo", example = "HIGH")
   Optional<TodoPriority> priority
 ) {
 }

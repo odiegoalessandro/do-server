@@ -52,12 +52,7 @@ public class SecurityConfig {
       .authenticationProvider(authenticationProvider)
       .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
       .authorizeHttpRequests(auth -> auth
-        .requestMatchers(
-          "/auth/**",
-          "/v3/api-docs/**",
-          "/swagger-ui/**",
-          "/swagger-ui.html"
-        ).permitAll()
+        .requestMatchers("/auth/**").permitAll()
         .anyRequest().authenticated()
       )
       .build();

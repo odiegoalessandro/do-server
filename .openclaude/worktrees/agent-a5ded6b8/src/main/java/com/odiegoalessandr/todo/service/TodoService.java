@@ -2,7 +2,6 @@ package com.odiegoalessandr.todo.service;
 
 import com.odiegoalessandr.todo.dto.CreateTodoDto;
 import com.odiegoalessandr.todo.dto.RequestTodo;
-import com.odiegoalessandr.todo.dto.UpdateTodoDto;
 import com.odiegoalessandr.todo.entity.Todo;
 import com.odiegoalessandr.todo.entity.User;
 import com.odiegoalessandr.todo.enums.TodoPriority;
@@ -74,19 +73,15 @@ public class TodoService {
       .orElseThrow(() -> new RuntimeException("Todo not found"));
   }
 
-  public RequestTodo update(UUID id, UpdateTodoDto updateTodoDto, User user) {
+  public RequestTodo update(UUID id, CreateTodoDto updateTodoDto, User user) {
     var todo = todoRepository.findByIdAndOwnerId(id, user.getId())
       .orElseThrow(() -> new RuntimeException("Todo not found"));
 
-    UUID parentId = todo.getParent() != null
-      ? todo.getParent().getId()
-      : null;
-
-    todo.setTitle(updateTodoDto.title().orElse(todo.getTitle()));
-    todo.setDescription(updateTodoDto.description().orElse(todo.getDescription()));
-    todo.setStatus(updateTodoDto.status().orElse(todo.getStatus()));
-    todo.setPriority(updateTodoDto.priority().orElse(todo.getPriority()));
-    setParent(todo, updateTodoDto.parentId().orElse(parentId), user);
+    todo.setTitle(updateTodoDto.title());
+    todo.setDescription(updateTodoDto.description().orElse(""));
+    todo.setStatus(updateTodoDto.status().orElse(TodoStatus.TODO));
+    todo.setPriority(updateTodoDto.priority().orElse(TodoPriority.LOW));
+    setParent(todo, updateTodoDto.parentId().orElse(null), user);
 
     return RequestTodo.from(todoRepository.save(todo));
   }

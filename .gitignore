@@ -30,3 +30,6 @@ build/
 !**/src/test/**/build/
 
 .openclaude
+.env
+.env.*
+!.env.example

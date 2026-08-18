@@ -3,7 +3,7 @@ package com.odiegoalessandr.todo.controller;
 import com.odiegoalessandr.todo.dto.CreateTodoDto;
 import com.odiegoalessandr.todo.dto.RequestTodo;
 import com.odiegoalessandr.todo.dto.UpdateTodoDto;
-import com.odiegoalessandr.todo.entity.User;
+import com.odiegoalessandr.todo.security.AuthenticatedUser;
 import com.odiegoalessandr.todo.enums.TodoPriority;
 import com.odiegoalessandr.todo.enums.TodoStatus;
 import com.odiegoalessandr.todo.service.TodoService;
@@ -43,9 +43,9 @@ public class TodoController {
   })
   public RequestTodo create(
     @RequestBody @Valid CreateTodoDto createTodoDto,
-    @Parameter(hidden = true) @AuthenticationPrincipal User user
+    @Parameter(hidden = true) @AuthenticationPrincipal AuthenticatedUser user
   ){
-    return todoService.create(createTodoDto, user);
+    return todoService.create(createTodoDto, user.getId());
   }
 
   @GetMapping
@@ -55,7 +55,7 @@ public class TodoController {
     @ApiResponse(responseCode = "401", description = "JWT ausente ou inválido", content = @Content)
   })
   public List<RequestTodo> findAll(
-    @Parameter(hidden = true) @AuthenticationPrincipal User user,
+    @Parameter(hidden = true) @AuthenticationPrincipal AuthenticatedUser user,
     @Parameter(description = "Filtra pelo status do todo", example = "TODO")
     @RequestParam(required = false) TodoStatus status,
     @Parameter(description = "Filtra pela prioridade do todo", example = "HIGH")
@@ -63,7 +63,7 @@ public class TodoController {
     @Parameter(description = "Filtra pelo ID do todo pai", example = "7f3a2d5c-0f5f-4b72-8b98-3fd6f6d7d5e1")
     @RequestParam(required = false) UUID parentId
   ) {
-    return todoService.findAll(user, status, priority, parentId);
+    return todoService.findAll(user.getId(), status, priority, parentId);
   }
 
   @GetMapping("/{id}")
@@ -75,9 +75,9 @@ public class TodoController {
   })
   public RequestTodo findById(
     @Parameter(description = "ID do todo", example = "7f3a2d5c-0f5f-4b72-8b98-3fd6f6d7d5e1") @PathVariable UUID id,
-    @Parameter(hidden = true) @AuthenticationPrincipal User user
+    @Parameter(hidden = true) @AuthenticationPrincipal AuthenticatedUser user
   ) {
-    return todoService.findById(id, user);
+    return todoService.findById(id, user.getId());
   }
 
   @PatchMapping("/{id}")
@@ -91,9 +91,9 @@ public class TodoController {
   public RequestTodo update(
     @Parameter(description = "ID do todo", example = "7f3a2d5c-0f5f-4b72-8b98-3fd6f6d7d5e1") @PathVariable UUID id,
     @RequestBody @Valid UpdateTodoDto updateTodoDto,
-    @Parameter(hidden = true) @AuthenticationPrincipal User user
+    @Parameter(hidden = true) @AuthenticationPrincipal AuthenticatedUser user
   ) {
-    return todoService.update(id, updateTodoDto, user);
+    return todoService.update(id, updateTodoDto, user.getId());
   }
 
   @DeleteMapping("/{id}")
@@ -105,8 +105,8 @@ public class TodoController {
   })
   public void delete(
     @Parameter(description = "ID do todo", example = "7f3a2d5c-0f5f-4b72-8b98-3fd6f6d7d5e1") @PathVariable UUID id,
-    @Parameter(hidden = true) @AuthenticationPrincipal User user
+    @Parameter(hidden = true) @AuthenticationPrincipal AuthenticatedUser user
   ) {
-    todoService.delete(id, user);
+    todoService.delete(id, user.getId());
   }
 }

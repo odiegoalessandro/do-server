@@ -1,5 +1,7 @@
 package com.odiegoalessandr.todo.filters;
 
+import com.odiegoalessandr.todo.security.AuthenticatedUser;
+import com.odiegoalessandr.todo.service.UserService;
 import com.odiegoalessandr.todo.util.JwtUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -7,7 +9,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -18,14 +19,14 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
 
   private final JwtUtils jwtUtils;
-  private final UserDetailsService userDetailsService;
+  private final UserService userService;
 
   public JwtFilter(
     JwtUtils jwtUtils,
-    UserDetailsService userDetailsService
+    UserService userService
   ) {
     this.jwtUtils = jwtUtils;
-    this.userDetailsService = userDetailsService;
+    this.userService = userService;
   }
 
   @Override
@@ -44,28 +45,25 @@ public class JwtFilter extends OncePerRequestFilter {
     ) {
       String token = authHeader.substring(7);
 
-      if (jwtUtils.validateJwtToken(token)) {
-        String username =
-          jwtUtils.extractUsernameFromJwtToken(token);
+      jwtUtils.extractUsernameFromValidJwtToken(token)
+        .map(userService::loadUserByUsername)
+        .map(AuthenticatedUser::from)
+        .ifPresent(principal -> {
+          var authentication =
+            new UsernamePasswordAuthenticationToken(
+              principal,
+              null,
+              principal.getAuthorities()
+            );
 
-        var userDetails =
-          userDetailsService.loadUserByUsername(username);
-
-        var authentication =
-          new UsernamePasswordAuthenticationToken(
-            userDetails,
-            null,
-            userDetails.getAuthorities()
+          authentication.setDetails(
+            new WebAuthenticationDetailsSource()
+              .buildDetails(request)
           );
 
-        authentication.setDetails(
-          new WebAuthenticationDetailsSource()
-            .buildDetails(request)
-        );
-
-        SecurityContextHolder.getContext()
-          .setAuthentication(authentication);
-      }
+          SecurityContextHolder.getContext()
+            .setAuthentication(authentication);
+        });
     }
 
     filterChain.doFilter(request, response);

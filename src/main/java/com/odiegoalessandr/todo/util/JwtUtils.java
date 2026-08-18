@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class JwtUtils {
@@ -34,24 +34,18 @@ public class JwtUtils {
       .compact();
   }
 
-  public String extractUsernameFromJwtToken(String token) {
-    return Jwts.parser()
-      .verifyWith(signingKey)
-      .build()
-      .parseSignedClaims(token)
-      .getPayload()
-      .getSubject();
-  }
-
-  public Boolean validateJwtToken(String token) {
+  public Optional<String> extractUsernameFromValidJwtToken(String token) {
     try {
-      Jwts.parser()
+      var username = Jwts.parser()
         .verifyWith(signingKey)
         .build()
-        .parseSignedClaims(token);
-      return true;
+        .parseSignedClaims(token)
+        .getPayload()
+        .getSubject();
+
+      return Optional.ofNullable(username);
     } catch (JwtException e) {
-      return false;
+      return Optional.empty();
     }
   }
 }
